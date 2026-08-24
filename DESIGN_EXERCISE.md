@@ -26,7 +26,7 @@ Design and build the software that grouts a single grout line. Assume the follow
 
 ## Simulation
 
-We provide a lightweight ROS 2 (Humble) simulation, `grout_sim`, that plays the world and all four black boxes: it moves the robot according to your `/cmd_vel` and reports what the downward camera sees. It builds with a plain `colcon build`. Computer vision is solved for you here, and the simulation hands you the grout line position directly (with noise).
+We provide a lightweight ROS 2 (Humble) simulation, the `simulation` package, that plays the world and all four black boxes: it moves the robot according to your `/cmd_vel` and reports what the downward camera sees. It builds with a plain `colcon build`. Computer vision is solved for you here, and the simulation hands you the grout line position directly (with noise).
 
 **The interface.** This contract is fixed. Design your own nodes and internal messages around it.
 
