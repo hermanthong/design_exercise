@@ -81,7 +81,7 @@ Produce a design document that covers the following.
 
 Using the scenario framework, write scenarios that exercise the failure modes you described in Part A, and demonstrate that your system handles them.
 
-Finally, make it deployable. Include build, run and launch instructions. We will execute your instructions on a clean machine during evaluation.
+Finally, make it deployable. Include build, run and launch instructions. We will execute your instructions on a clean machine running Ubuntu 22.04 during evaluation.
 
 ## Part C: Your thinking
 
