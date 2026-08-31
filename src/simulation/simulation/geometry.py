@@ -1,6 +1,5 @@
-"""Pure 2-D geometry helpers for the grout-line simulation.
-
-No ROS dependencies live here so the maths can be unit-tested directly.
+"""
+Pure 2-D geometry helpers for the grout-line simulation.
 """
 import math
 
@@ -13,7 +12,8 @@ def angle_wrap(a: float) -> float:
 
 
 def _project_point_to_segment(p, a, b):
-    """Return (nearest_point, t, seg_length) for point ``p`` onto segment a->b.
+    """
+    Return (nearest_point, t, seg_length) for point ``p`` onto segment a->b.
 
     ``t`` is the clamped parameter in [0, 1] along the segment.
     """
@@ -28,7 +28,8 @@ def _project_point_to_segment(p, a, b):
 
 
 def project_to_polyline(p, pts):
-    """Project point ``p`` onto a polyline given as a list of 2-D np arrays.
+    """
+    Project point ``p`` onto a polyline given as a list of 2-D np arrays.
 
     Returns a dict with the nearest point, the perpendicular ``dist``, the
     arc-length ``s`` of the nearest point from the polyline start, the total

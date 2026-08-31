@@ -40,7 +40,7 @@ The simulation publishes:
 The simulation subscribes:
 
 - `/cmd_vel` (`geometry_msgs/Twist`): `linear.x` and `angular.z`.
-- `/grout_on` (`std_msgs/Bool`): extruder on or off.
+- `/extrude` (`std_msgs/Bool`): extruder on or off.
 
 `LineDetection` is:
 
@@ -56,7 +56,7 @@ bool    valid              # false when the camera has no grout line beneath it
 2. The camera is not always able to see the grout line. What your system does then is up to your architecture.
 
 ### Scenarios
-The simulation ships one scenario, `happy_path`: a straight grout line with nominal noise. It is deliberately easy. Add your own scenarios to test cases with higher noise, different geometries, etc.
+The simulation ships one scenario, `happy_path`: a straight grout line with nominal noise. It is deliberately easy. Add your own scenarios to test cases with higher noise, longer or angled grout lines, camera dropouts, etc.
 
 ### Evaluation
 Use these metrics to evaluate the run.
@@ -77,7 +77,7 @@ Produce a design document that covers the following.
 
 ## Part B: Build it
 
-**Write runnable ROS 2 code that follows and grouts the grout line,** implemented as one or more ROS 2 nodes running against the provided simulation. It should genuinely work: consume `/line_detection`, keep the extruder aligned over the grout line, drive `/cmd_vel`, gate the extruder with `/grout_on`, and stop when the grout line ends. Use C++ or Python (rclcpp or rclpy), whichever lets you do your best work.
+**Write runnable ROS 2 code that follows and grouts the grout line,** implemented as one or more ROS 2 nodes running against the provided simulation. It should genuinely work: consume `/line_detection`, keep the extruder aligned over the grout line, drive `/cmd_vel`, gate the extruder with `/extrude`, and stop when the grout line ends. Use C++ or Python (rclcpp or rclpy), whichever lets you do your best work.
 
 Using the scenario framework, write scenarios that exercise the failure modes you described in Part A, and demonstrate that your system handles them.
 
