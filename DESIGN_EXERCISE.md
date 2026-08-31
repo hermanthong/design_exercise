@@ -21,42 +21,35 @@ Design and build the software that grouts a single grout line. Assume the follow
 
 **The system must be designed and implemented in ROS 2.** Our robot stack is ROS 2 based, so use ROS 2 nodes, topics and services, QoS, and executors as your building blocks throughout. The robot has the following hardware for your software to orchestrate. Treat each one as a black box, which the simulation replaces.
 
-- **Downward-facing camera.** Sees the grout line beneath the robot and reports where the extruder sits relative to it: a lateral distance and a heading error. Moderate rate, 15 Hz, noisy.
-- **Wheel motors.** Two wheel motors in a differential drive. You command a forward velocity and an angular velocity.
+- **Downward-facing camera.** Sees the grout line beneath the robot and reports where the extruder sits relative to it: a lateral distance and a heading error. Moderate rate, noisy.
+- **Wheel motors.** Two wheel motors in a differential drive. You command a forward velocity and an angular velocity, which the simulation clamps and rate-limits to the base's limits (values in `world.py`).
 - **Wheel encoders.** Report odometry.
 - **Extruder motor.** Dispenses grout while it is switched on.
 
 ## Simulation
 
-We provide a lightweight ROS 2 (Humble) simulation, the `simulation` package, that plays the world and all four black boxes: it moves the robot according to your `/cmd_vel` and reports what the downward camera sees. It builds with a plain `colcon build`. Computer vision is solved for you here, and the simulation hands you the grout line position directly (with noise).
+We provide a lightweight ROS 2 Humble simulation, that plays the world and all hardware components. It moves the robot according to your `/cmd_vel` and reports what the downward camera sees. Assume that computer vision is solved, and the simulation hands you the grout line position directly (with noise). You may edit this code if you see fit, but do not relax the constraints.
 
 **The interface.** This contract is fixed. Design your own nodes and internal messages around it.
 
 The simulation publishes:
 
-- `/line_detection` (`grout_sim_msgs/LineDetection`, ~15 Hz): `extruder_distance` (m, signed lateral distance of the extruder from the grout line), `angle_difference` (rad, heading versus the grout line tangent), and `valid` (bool).
+- `/line_detection` (`msgs/LineDetection`, ~15 Hz): Position of the line 
 - `/odom` (`nav_msgs/Odometry`, ~50 Hz): noisy odometry from the encoders.
 
 The simulation subscribes:
 
-- `/cmd_vel` (`geometry_msgs/Twist`): `linear.x` and `angular.z`.
-- `/grout_on` (`std_msgs/Bool`): extruder on or off.
+- `/cmd_vel` (`geometry_msgs/Twist`): `linear.x` and `angular.z`. Clamped and rate-limited to the motor limits above.
+- `/extrude` (`std_msgs/Bool`): extruder on or off.
 
-`LineDetection` is:
-
-```
-std_msgs/Header header
-float64 extruder_distance    # metres, signed: +ve = grout line is to the robot's left
-float64 angle_difference   # radians, signed heading error versus the grout line tangent
-bool    valid              # false when the camera has no grout line beneath it
-```
+The definition of `LineDetection` is also provided in the `msgs` package.
 
 ### Design considerations
-1. `extruder_distance` and `angle_difference` carry noise, but the controller you design should converge the robot to the grout line.
+1. `lateral_error` and `heading_error` carry noise, but the controller you design should converge the robot to the grout line.
 2. The camera is not always able to see the grout line. What your system does then is up to your architecture.
 
 ### Scenarios
-The simulation ships one scenario, `happy_path`: a straight grout line with nominal noise. It is deliberately easy. Add your own scenarios to test cases with higher noise, different geometries, etc.
+The simulation ships one scenario, `happy_path`: a straight grout line with nominal noise. It is deliberately easy. Add your own scenarios to test cases with higher noise, longer or angled grout lines, camera dropouts, etc.
 
 ### Evaluation
 Use these metrics to evaluate the run.
@@ -77,11 +70,13 @@ Produce a design document that covers the following.
 
 ## Part B: Build it
 
-**Write runnable ROS 2 code that follows and grouts the grout line,** implemented as one or more ROS 2 nodes running against the provided simulation. It should genuinely work: consume `/line_detection`, keep the extruder aligned over the grout line, drive `/cmd_vel`, gate the extruder with `/grout_on`, and stop when the grout line ends. Use C++ or Python (rclcpp or rclpy), whichever lets you do your best work.
+**Write runnable ROS 2 code that follows and grouts the grout line,** implemented as one or more ROS 2 nodes running against the provided simulation. This node should consume `/line_detection` and `/odom`, publish `/cmd_vel` to keep the extruder aligned over the grout line, gate the extruder with `/extrude`, and stop when the grout line ends. Use C++ or Python (rclcpp or rclpy), whichever lets you do your best work.
 
 Using the scenario framework, write scenarios that exercise the failure modes you described in Part A, and demonstrate that your system handles them.
 
-Finally, make it deployable. Include build, run and launch instructions. We will execute your instructions on a clean machine running Ubuntu 22.04 during evaluation.
+Finally, make it deployable. Include build, run and launch instructions. We will execute your instructions on a clean machine running Ubuntu 22.04 during evaluation. **Make sure that your code launches and runs in a single command.**
+
+**Bonus**: Make it also work if the grout line is not in view at the start
 
 ## Part C: Your thinking
 
@@ -91,9 +86,10 @@ Throughout, show your work. Tell us the alternatives you considered and set asid
 
 - A design document covering Parts A and C, in any format. A diagram is expected for the architecture.
 - Your Part B code as a git fork of this repo, with run and launch instructions and any tests.
+- Anything else that you think will impress us.
 
 ## AI tools policy
 
-Using AI tools is allowed for this exercise. **Declare all AI-generated code in the design document.** Note that we expect you to understand and defend everything you submit.
+Using AI tools is allowed for this exercise, provided that you **declare all AI-generated code** as a comment on top of the code. Using AI tools is not considered good nor bad, we require this because we are interested in your workflow. Note that we expect you to understand and defend everything you submit.
 
 *If a requirement is ambiguous, state your assumption and carry on. Making sensible assumptions explicit is part of the job. Only ask us if you are genuinely blocked and have no idea how to continue.*
