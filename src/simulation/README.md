@@ -24,31 +24,11 @@ While running, the simulation:
   at ~50 Hz, and broadcasts TF `odom -> base_link`;
 - **subscribes** to `/cmd_vel` (`geometry_msgs/Twist`) and `/extrude` (`std_msgs/Bool`).
 
-<!-- ## Drive it by hand
-
-With the simulation running, in a second sourced shell:
-
-```bash
-# watch what the camera reports
-ros2 topic echo /line_detection
-
-# drive forward at 0.3 m/s (held until you change it)
-ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.01}, angular: {z: 0.0}}"
-
-# forward + gentle left turn, streamed at 10 Hz
-ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.3}, angular: {z: 0.2}}"
-
-# turn the extruder on
-ros2 topic pub --once /extrude std_msgs/msg/Bool "{data: true}"
-
-# stop
-ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0}, angular: {z: 0.0}}"
-``` -->
 
 ## Scenarios
 
 The simulation ships one scenario, `happy_path`. Add your own by putting another entry in the `SCENARIOS`
-dict in `simulation/scenarios.py`, then select it with `scenario:=<name>`:
+dict in `simulation/scenarios.py`, then select it by name. For example, once you add a `diagonal` scenario:
 
 ```bash
 ros2 launch simulation simulation.launch.py scenario:=diagonal

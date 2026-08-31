@@ -10,13 +10,24 @@ import numpy as np
 
 from .geometry import angle_wrap
 
+# Physical limits of the differential-drive base.
+MAX_LINEAR_VELOCITY = 0.3       # m/s
+MAX_ANGULAR_VELOCITY = 1.0      # rad/s
+MAX_LINEAR_ACCELERATION = 1.0   # m/s^2
+MAX_ANGULAR_ACCELERATION = 3.0  # rad/s^2
+
+
+def _clamp(value: float, limit: float) -> float:
+    """Clamp ``value`` to the symmetric range [-limit, limit]."""
+    return max(-limit, min(limit, value))
+
 
 @dataclass
 class LineReading:
     """What the downward camera reports on ``/line_detection``."""
 
-    extruder_distance: float
-    angle_difference: float
+    lateral_error: float
+    heading_error: float
     valid: bool
 
 
@@ -44,17 +55,27 @@ class World:
         self.y = float(y)
         self.theta = float(theta)
         self.time = 0.0
+        self.v = 0.0  # current linear velocity
+        self.w = 0.0  # current angular velocity
         self.last_linear_velocity = 0.0
         self.last_angular_velocity = 0.0
         self._rng = np.random.default_rng()
 
     def step(self, dt: float, linear_velocity: float, angular_velocity: float) -> None:
-        """Advance the model by ``dt`` seconds under the commanded velocities."""
-        self.last_linear_velocity = float(linear_velocity)
-        self.last_angular_velocity = float(angular_velocity)
-        self.x += linear_velocity * math.cos(self.theta) * dt
-        self.y += linear_velocity * math.sin(self.theta) * dt
-        self.theta = angle_wrap(self.theta + angular_velocity * dt)
+        """Advance the model by ``dt`` seconds under the commanded velocities.
+
+        The commands are clamped to the base's top speeds and rate-limited by its
+        maximum accelerations, so the achieved velocity ramps toward the command.
+        """
+        v_cmd = _clamp(float(linear_velocity), MAX_LINEAR_VELOCITY)
+        w_cmd = _clamp(float(angular_velocity), MAX_ANGULAR_VELOCITY)
+        self.v += _clamp(v_cmd - self.v, MAX_LINEAR_ACCELERATION * dt)
+        self.w += _clamp(w_cmd - self.w, MAX_ANGULAR_ACCELERATION * dt)
+        self.last_linear_velocity = self.v
+        self.last_angular_velocity = self.w
+        self.x += self.v * math.cos(self.theta) * dt
+        self.y += self.v * math.sin(self.theta) * dt
+        self.theta = angle_wrap(self.theta + self.w * dt)
         self.time += dt
 
     def extruder_tip(self) -> np.ndarray:
@@ -74,24 +95,23 @@ class World:
         along = float(offset @ self.tangent)        # distance along the line from start, metres
         lateral = float(offset @ self.left_normal)  # signed lateral offset of the tip, +ve to its left
 
-        # extruder_distance reports where the line sits relative to the tip, so it
+        # lateral_error reports where the line sits relative to the tip, so it
         # is the tip's lateral offset negated: +ve means the line is to the left.
-        extruder_distance = -lateral
-        angle_difference = angle_wrap(self.tangent_angle - self.theta)
+        lateral_error = -lateral
+        heading_error = angle_wrap(self.tangent_angle - self.theta)
 
-        # The camera sees the line while the extruder tip is over it: within the
-        # camera's lateral half-width of the line, past the start (minus a small
-        # margin), before the end, and not during an injected dropout.
-        out_of_view = abs(lateral) > self.scenario.camera_half_width
-        before_start = along < 0.0
-        beyond_end = along > self.length
+        # calculate if line is in field of view
+        half_width = self.scenario.camera_half_width
+        out_of_view = abs(lateral) > half_width
+        before_start = along < -half_width
+        beyond_end = along > self.length + half_width
         valid = not (out_of_view or before_start or beyond_end or self._in_dropout())
 
         if not valid:
             return LineReading(0.0, 0.0, False)
         if add_noise:
-            extruder_distance += float(self._rng.normal(0.0, self.scenario.noise_extruder_sigma))
-            angle_difference = angle_wrap(
-                angle_difference + float(self._rng.normal(0.0, self.scenario.noise_angle_sigma))
+            lateral_error += float(self._rng.normal(0.0, self.scenario.camera_noise_linear_sigma))
+            heading_error = angle_wrap(
+                heading_error + float(self._rng.normal(0.0, self.scenario.camera_noise_angular_sigma))
             )
-        return LineReading(extruder_distance, angle_difference, True)
+        return LineReading(lateral_error, heading_error, True)
