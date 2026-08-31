@@ -1,7 +1,7 @@
 """ROS 2 node wrapping :class:`simulation.world.World`.
 
 Plays the world and the four hardware black boxes:
-  publishes  /line_detection (grout_sim_msgs/LineDetection)  ~15 Hz
+  publishes  /line_detection (msgs/LineDetection)  ~15 Hz
              /odom           (nav_msgs/Odometry)             ~50 Hz
              TF odom -> base_link
   subscribes /cmd_vel        (geometry_msgs/Twist)
@@ -19,7 +19,7 @@ from rclpy.node import Node
 from std_msgs.msg import Bool
 from tf2_ros import TransformBroadcaster
 
-from grout_sim_msgs.msg import LineDetection
+from msgs.msg import LineDetection
 
 from .scenarios import get_scenario
 from .world import World

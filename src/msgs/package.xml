@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://relaxng.org/ns/structure/1.0"?>
 <package format="3">
-  <name>grout_sim_msgs</name>
+  <name>msgs</name>
   <version>0.1.0</version>
   <description>Message interface for the grout-line-following simulation (Fabrica take-home).</description>
   <maintainer email="nelson@fabrica.ai">Fabrica AI</maintainer>

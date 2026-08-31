@@ -22,7 +22,7 @@ ros2 launch simulation simulation.launch.py scenario:=happy_path seed:=0
 
 While running, the simulation:
 
-- **publishes** `/line_detection` (`grout_sim_msgs/LineDetection`) at ~15 Hz and `/odom` (`nav_msgs/Odometry`)
+- **publishes** `/line_detection` (`msgs/LineDetection`) at ~15 Hz and `/odom` (`nav_msgs/Odometry`)
   at ~50 Hz, and broadcasts TF `odom -> base_link`;
 - **subscribes** to `/cmd_vel` (`geometry_msgs/Twist`) and `/grout_on` (`std_msgs/Bool`).
 

@@ -15,7 +15,7 @@ class Scenario:
 
     waypoints            : grout-line polyline, list of (x, y) in metres.
     start_pose           : robot (x, y, theta) at launch -- "roughly" on the line.
-    nozzle_forward       : extruder-tip offset ahead of base_link, metres.
+    extruder_forward     : extruder-tip offset ahead of base_link, metres.
     camera_half_width    : how far off the line the camera can still see it, metres.
     start_margin         : slack behind the line start before the camera loses it.
     noise_extruder_sigma : std-dev of Gaussian noise on extruder_distance, metres.
@@ -26,7 +26,7 @@ class Scenario:
     name: str
     waypoints: List[Tuple[float, float]]
     start_pose: Tuple[float, float, float] = (0.0, 0.0, 0.0)
-    nozzle_forward: float = 0.2
+    extruder_forward: float = 0.2
     camera_half_width: float = 0.15
     start_margin: float = 0.05
     noise_extruder_sigma: float = 0.002

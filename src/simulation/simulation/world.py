@@ -53,7 +53,7 @@ class World:
 
     def extruder_tip(self) -> np.ndarray:
         """World position of the extruder tip (a point ahead of base_link)."""
-        length = self.scn.nozzle_forward
+        length = self.scn.extruder_forward
         return np.array(
             [self.x + length * math.cos(self.theta), self.y + length * math.sin(self.theta)]
         )

@@ -34,7 +34,7 @@ We provide a lightweight ROS 2 (Humble) simulation, the `simulation` package, th
 
 The simulation publishes:
 
-- `/line_detection` (`grout_sim_msgs/LineDetection`, ~15 Hz): `extruder_distance` (m, signed lateral distance of the extruder from the grout line), `angle_difference` (rad, heading versus the grout line tangent), and `valid` (bool).
+- `/line_detection` (`msgs/LineDetection`, ~15 Hz): `extruder_distance` (m, signed lateral distance of the extruder from the grout line), `angle_difference` (rad, heading versus the grout line tangent), and `valid` (bool).
 - `/odom` (`nav_msgs/Odometry`, ~50 Hz): noisy odometry from the encoders.
 
 The simulation subscribes:
